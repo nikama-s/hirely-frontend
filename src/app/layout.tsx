@@ -26,7 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import Link from "next/link";
 
 export default function Home() {
   const features = [
@@ -17,30 +18,17 @@ export default function Home() {
   ];
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 gap-6">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6">
       <div className="flex flex-col items-center gap-3">
         <Typography
           variant="h2"
           component="h1"
-          sx={{
-            background: "linear-gradient(45deg, #3B82F6 30%, #8B5CF6 90%)",
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontWeight: "bold",
-          }}
+          className="bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text font-bold"
         >
           Hirely
         </Typography>
 
-        <Paper
-          sx={{
-            p: 3,
-            borderRadius: 3,
-            boxShadow: "0 3px 15px rgba(0, 0, 0, 0.1)",
-            maxWidth: 400,
-          }}
-        >
+        <Paper className="p-5 rounded-lg shadow-md max-w-lg">
           <List>
             {features.map((feature, index) => (
               <ListItem key={index}>
@@ -57,23 +45,10 @@ export default function Home() {
       <Button
         variant="contained"
         size="large"
-        sx={{
-          background: "linear-gradient(45deg, #3B82F6 30%, #8B5CF6 90%)",
-          borderRadius: "25px",
-          padding: "12px 32px",
-          fontSize: "1.1rem",
-          fontWeight: 600,
-          boxShadow: "0 3px 15px rgba(59, 130, 246, 0.3)",
-          "&:hover": {
-            background: "linear-gradient(45deg, #2563EB 30%, #7C3AED 90%)",
-            boxShadow: "0 6px 20px rgba(59, 130, 246, 0.4)",
-            transform: "translateY(-2px)",
-          },
-          transition: "all 0.3s ease-in-out",
-        }}
+        className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl py-3 px-8 text-lg font-semibold shadow-md hover:shadow-lg hover:bg-blue-600 hover:to-purple-600 hover:translate-y-[-2px] transition-all ease-in-out duration-300"
       >
-        Get Started ✨
+        <Link href="/applications">Get Started ✨</Link>
       </Button>
-    </main>
+    </div>
   );
 }
