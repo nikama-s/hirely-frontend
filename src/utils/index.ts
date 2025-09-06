@@ -13,9 +13,9 @@ export const getStatusStyle = (status: ApplicationStatus) => {
     case ApplicationStatus.OFFERED:
       return "bg-success-bg text-success";
     case ApplicationStatus.ACCEPTED:
-      return "bg-success-bg text-success";
+      return "bg-accepted-bg text-accepted";
     case ApplicationStatus.GHOSTED:
-      return "bg-warning-bg text-warning";
+      return "bg-ghosted-bg text-ghosted";
     default:
       return "bg-muted-bg text-muted";
   }

@@ -12,6 +12,8 @@
   --color-warning: #d97706;
   --color-error: #dc2626;
   --color-info: #2563eb;
+  --color-ghosted: #7c3aed;
+  --color-accepted: #166534;
 
   /* Neutral colors */
   --color-muted: #6b7280;
@@ -25,6 +27,8 @@
   --color-error-bg: #fee2e2;
   --color-info-bg: #dbeafe;
   --color-muted-bg: #f3f4f6;
+  --color-ghosted-bg: #ddd6fe;
+  --color-accepted-bg: #4ade80;
 }
 
 :root {

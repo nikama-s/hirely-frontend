@@ -35,10 +35,10 @@ export default function ApplicationsPage() {
           <StatCard
             value={
               applications?.filter(
-                (app) => app.status === ApplicationStatus.APPLIED
+                (app) => app.status !== ApplicationStatus.NOT_APPLIED
               ).length || 0
             }
-            label="Applied"
+            label="Applications Sent"
             color="primary"
             icon={AppliedIcon}
             isLoading={isLoading}
@@ -49,7 +49,7 @@ export default function ApplicationsPage() {
                 (app) => app.status === ApplicationStatus.INTERVIEW
               ).length || 0
             }
-            label="Interviews"
+            label="Upcoming Interviews"
             color="warning"
             icon={InterviewIcon}
             isLoading={isLoading}
@@ -57,10 +57,12 @@ export default function ApplicationsPage() {
           <StatCard
             value={
               applications?.filter(
-                (app) => app.status === ApplicationStatus.OFFERED
+                (app) =>
+                  app.status === ApplicationStatus.OFFERED ||
+                  app.status === ApplicationStatus.ACCEPTED
               ).length || 0
             }
-            label="Offers"
+            label="Offers Received"
             color="success"
             icon={OfferedIcon}
             isLoading={isLoading}
@@ -68,10 +70,12 @@ export default function ApplicationsPage() {
           <StatCard
             value={
               applications?.filter(
-                (app) => app.status === ApplicationStatus.REJECTED
+                (app) =>
+                  app.status === ApplicationStatus.REJECTED ||
+                  app.status === ApplicationStatus.GHOSTED
               ).length || 0
             }
-            label="Rejected"
+            label="Rejected / Ghosted"
             color="error"
             icon={RejectedIcon}
             isLoading={isLoading}

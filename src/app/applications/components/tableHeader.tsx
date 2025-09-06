@@ -27,7 +27,7 @@ export const TableHeader = ({ applications, isLoading }: TableHeaderProps) => {
         <div className="mt-6 sm:mt-0">
           <Paper
             elevation={2}
-            className="rounded-xl shadow-md border border-border-light px-5 py-4 min-w-[180px] sm:min-w-[220px]"
+            className="rounded-xl mx-auto shadow-md border border-border-light px-5 py-4 min-w-[180px] sm:min-w-[220px] max-w-[400px]"
           >
             <div className="text-center flex flex-col">
               <Typography
