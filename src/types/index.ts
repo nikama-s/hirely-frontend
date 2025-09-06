@@ -9,14 +9,17 @@ export enum ApplicationStatus {
 }
 
 export type Application = {
-  id: string;
+  id: number;
+  userId: string;
   company: string;
   jobTitle: string;
   status: ApplicationStatus;
-  dateApplied: string;
-  jobPostUrl: string;
-  notes: string;
-  salary_from: number;
-  salary_to: number;
-  location: string;
+  dateApplied: string | null;
+  jobPostUrl: string | null;
+  notes: string | null;
+  salary_from: number | null;
+  salary_to: number | null;
+  location: string | null;
+  createdAt: string;
+  updatedAt: string;
 };

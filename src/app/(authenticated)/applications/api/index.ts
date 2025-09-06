@@ -3,8 +3,16 @@ import { ApplicationFormData } from "@/schemas/applicationForm";
 
 export const fetchApplications = async (): Promise<Application[]> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/job-applications`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/job-applications`,
+    {
+      credentials: "include", // Important for session cookies
+    }
   );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch applications");
+  }
+
   const data = await response.json();
   return data;
 };
@@ -19,6 +27,7 @@ export const createApplication = async (
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // Important for session cookies
       body: JSON.stringify(data),
     }
   );
