@@ -34,7 +34,7 @@ export const TableHeader = ({ applications, isLoading }: TableHeaderProps) => {
                 variant="body2"
                 className="text-muted-foreground text-sm sm:text-base font-medium mb-2"
               >
-                Total Applications
+                Total Jobs
               </Typography>
               {isLoading ? (
                 <Skeleton
