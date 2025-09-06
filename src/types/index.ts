@@ -16,6 +16,7 @@ export type Application = {
   dateApplied: string;
   jobPostUrl: string;
   notes: string;
-  salary: string;
+  salary_from: number;
+  salary_to: number;
   location: string;
 };

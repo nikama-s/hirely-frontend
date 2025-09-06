@@ -47,11 +47,30 @@ export const getApplicationColumns = (): GridColDef[] => [
   }),
   createColumn("location", "Location", 1),
   createColumn("salary", "Salary", 0.8, {
-    renderCell: (params) => (
-      <span className="font-medium text-success">
-        {params.value || <span className="text-muted">N/A</span>}
-      </span>
-    ),
+    renderCell: (params) => {
+      const salaryFrom = params.row.salary_from;
+      const salaryTo = params.row.salary_to;
+
+      let displayText = "N/A";
+
+      if (salaryFrom && salaryTo) {
+        displayText = `$${salaryFrom.toLocaleString()} - $${salaryTo.toLocaleString()}`;
+      } else if (salaryFrom || salaryTo) {
+        displayText = salaryFrom
+          ? `$${salaryFrom.toLocaleString()}`
+          : `$${salaryTo.toLocaleString()}`;
+      }
+
+      return (
+        <span className="font-medium text-success">
+          {displayText === "N/A" ? (
+            <span className="text-muted">N/A</span>
+          ) : (
+            displayText
+          )}
+        </span>
+      );
+    },
   }),
   createColumn("jobPostUrl", "Job Post", 0.6, {
     renderCell: (params) =>
