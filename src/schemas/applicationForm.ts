@@ -8,7 +8,8 @@ export const applicationFormSchema = z.object({
   dateApplied: z.string().optional(),
   jobPostUrl: z.url("Invalid URL format").optional().or(z.literal("")),
   notes: z.string().optional(),
-  salary: z.string().optional(),
+  salary_from: z.number().optional(),
+  salary_to: z.number().optional(),
   location: z.string().optional(),
 });
 

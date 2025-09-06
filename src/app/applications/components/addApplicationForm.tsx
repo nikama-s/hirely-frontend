@@ -66,7 +66,8 @@ export function AddApplicationForm({
       dateApplied: "",
       jobPostUrl: "",
       notes: "",
-      salary: "",
+      salary_from: undefined,
+      salary_to: undefined,
       location: "",
     },
   });
@@ -86,9 +87,9 @@ export function AddApplicationForm({
       };
 
       const application = await createApplication(formattedData);
-      reset();
       setOpen(false);
       onApplicationAdded(application);
+      reset();
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to create application"
@@ -185,22 +186,52 @@ export function AddApplicationForm({
                 helperText={errors.jobPostUrl?.message}
                 placeholder="https://..."
               />
+              <TextField
+                {...register("location")}
+                label="Location"
+                fullWidth
+                error={!!errors.location}
+                helperText={errors.location?.message}
+              />
 
               <Box className="flex gap-2 sm:gap-4">
                 <TextField
-                  {...register("location")}
-                  label="Location"
+                  {...register("salary_from", {
+                    setValueAs: (value) => {
+                      if (value === "" || value == null) return undefined;
+                      const num = Number(value);
+                      return isNaN(num) ? undefined : num;
+                    },
+                  })}
+                  label="Salary From"
+                  slotProps={{
+                    htmlInput: {
+                      type: "number",
+                    },
+                  }}
                   fullWidth
-                  error={!!errors.location}
-                  helperText={errors.location?.message}
+                  error={!!errors.salary_from}
+                  helperText={errors.salary_from?.message}
+                  placeholder="e.g., 1000"
                 />
                 <TextField
-                  {...register("salary")}
-                  label="Salary"
+                  {...register("salary_to", {
+                    setValueAs: (value) => {
+                      if (value === "" || value == null) return undefined;
+                      const num = Number(value);
+                      return isNaN(num) ? undefined : num;
+                    },
+                  })}
+                  label="Salary To"
+                  slotProps={{
+                    htmlInput: {
+                      type: "number",
+                    },
+                  }}
                   fullWidth
-                  error={!!errors.salary}
-                  helperText={errors.salary?.message}
-                  placeholder="e.g., $80,000 - $100,000"
+                  error={!!errors.salary_to}
+                  helperText={errors.salary_to?.message}
+                  placeholder="leave empty if not a range"
                 />
               </Box>
 
