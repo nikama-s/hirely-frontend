@@ -35,12 +35,22 @@ export const getApplicationColumns = (): GridColDef[] => [
   }),
   createColumn("dateApplied", "Date Applied", 0.8, {
     type: "date",
-    valueGetter: (value) => (value ? new Date(value) : null),
+    valueGetter: (value) => (value ? new Date(value) : undefined),
+    renderCell: (params) =>
+      params.value ? (
+        <span className="font-medium text-success">
+          {new Date(params.value).toLocaleDateString()}
+        </span>
+      ) : (
+        <span className="font-medium text-muted">Not Applied</span>
+      ),
   }),
   createColumn("location", "Location", 1),
   createColumn("salary", "Salary", 0.8, {
     renderCell: (params) => (
-      <span className="font-medium text-success">{params.value || "N/A"}</span>
+      <span className="font-medium text-success">
+        {params.value || <span className="text-muted">N/A</span>}
+      </span>
     ),
   }),
   createColumn("jobPostUrl", "Job Post", 0.6, {
