@@ -56,84 +56,77 @@ export const UserNavbar = () => {
   return (
     <AppBar position="static" className="bg-violet-500 shadow-md">
       <Toolbar className="px-4 sm:px-6">
-        <Typography
-          variant="h6"
-          component="div"
-          className="flex-grow font-bold text-white"
-        >
-          Hirely
-        </Typography>
+        <Link href="/applications">
+          <Typography
+            variant="h6"
+            component="div"
+            className="font-bold text-white cursor-pointer hover:text-white/90 transition-colors duration-200"
+          >
+            Hirely
+          </Typography>
+        </Link>
 
         {userInfo && !isLoading && (
-          <Box className="flex items-center gap-3">
-            <Link href="/admin/users">
-              <Button
-                variant="outlined"
-                startIcon={<AdminPanelSettings />}
-                className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
-                size="small"
+          <>
+            <Box className="flex items-center gap-3 ml-auto mr-4">
+              <Link href="/admin/users">
+                <Button
+                  variant="outlined"
+                  startIcon={<AdminPanelSettings />}
+                  className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
+                  size="small"
+                >
+                  Admin Panel
+                </Button>
+              </Link>
+            </Box>
+
+            <Box className="flex items-center gap-3">
+              <Typography
+                variant="body2"
+                className="text-white/90 font-medium hidden sm:block"
               >
-                Admin Panel
-              </Button>
-            </Link>
-            <Typography
-              variant="body2"
-              className="text-white/90 font-medium hidden sm:block"
-            >
-              {userInfo.email}
-            </Typography>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenuOpen}
-              color="inherit"
-              className="hover:bg-white/10"
-            >
-              <Avatar className="w-9 h-9 bg-gradient-to-r from-white/30 to-white/10 text-white font-bold border-2 border-white/20">
-                {getInitials(userInfo.email)}
-              </Avatar>
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              sx={{
-                "& .MuiPaper-root": {
-                  mt: 1,
-                  minWidth: 160,
-                  borderRadius: 2,
-                  boxShadow:
-                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-                  border: "1px solid rgba(0, 0, 0, 0.05)",
-                },
-                "& .MuiMenuItem-root": {
-                  py: 1.5,
-                  px: 2,
-                  "&:hover": {
-                    backgroundColor: "rgba(37, 99, 235, 0.04)",
-                  },
-                },
-              }}
-              disableScrollLock={true}
-            >
-              <MenuItem onClick={handleLogout} className="gap-1.5 text-red-500">
-                <Logout fontSize="small" />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
+                {userInfo.email}
+              </Typography>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenuOpen}
+                color="inherit"
+                className="hover:bg-white/10"
+              >
+                <Avatar className="w-9 h-9 bg-gradient-to-r from-white/30 to-white/10 text-white font-bold border-2 border-white/20">
+                  {getInitials(userInfo.email)}
+                </Avatar>
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                disableScrollLock={true}
+              >
+                <MenuItem
+                  onClick={handleLogout}
+                  className="gap-1.5 text-red-500"
+                >
+                  <Logout fontSize="small" />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          </>
         )}
       </Toolbar>
     </AppBar>
