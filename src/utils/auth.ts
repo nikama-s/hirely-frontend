@@ -21,7 +21,7 @@ export const checkAuthStatus = async (): Promise<AuthStatus> => {
 
     const data = await response.json();
     return { isAuthenticated: true, user: data.user };
-  } catch (error) {
+  } catch {
     return { isAuthenticated: false, user: null };
   }
 };

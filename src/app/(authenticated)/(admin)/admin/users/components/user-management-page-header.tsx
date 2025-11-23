@@ -41,8 +41,8 @@ export default function UserManagementPageHeader({
         />
 
         <Card
-          title="Active Users"
-          count={users?.filter((user) => user.enabled).length || 0}
+          title="Admins"
+          count={users?.filter((user) => user.isAdmin).length || 0}
           icon={
             <div className="p-3 bg-green-100 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -51,9 +51,9 @@ export default function UserManagementPageHeader({
         />
 
         <Card
-          title="Confirmed Users"
+          title="Regular Users"
           count={
-            users?.filter((user) => user.userStatus === "CONFIRMED").length || 0
+            users?.filter((user) => !user.isAdmin).length || 0
           }
           icon={
             <div className="p-3 bg-purple-100 rounded-lg">
