@@ -1,25 +1,29 @@
+export interface User {
+  id: string;
+  email: string;
+  isAdmin: boolean;
+}
+
 export interface AuthStatus {
   isAuthenticated: boolean;
-  userInfo?: {
-    sub: string;
-    email: string;
-    name?: string;
-    [key: string]: string | number | boolean | undefined;
-  };
-  loginUrl: string;
-  logoutUrl: string;
+  user: User | null;
 }
 
 export const checkAuthStatus = async (): Promise<AuthStatus> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/`, {
-    credentials: "include", // Important for session cookies
-  });
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
+        credentials: "include",
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to check auth status");
+    if (!response.ok) {
+        return { isAuthenticated: false, user: null };
+    }
+
+    const data = await response.json();
+    return { isAuthenticated: true, user: data.user };
+  } catch (error) {
+    return { isAuthenticated: false, user: null };
   }
-
-  return response.json();
 };
 
 export const handleGetStarted = async () => {
@@ -30,13 +34,12 @@ export const handleGetStarted = async () => {
       // User is logged in, go to applications
       window.location.href = "/applications";
     } else {
-      // User is not logged in, redirect to backend login
-      // This will redirect to Cognito and then back to frontend
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/login`;
+      // User is not logged in, redirect to frontend login
+      window.location.href = "/login";
     }
   } catch (error) {
     console.error("Auth check failed:", error);
     // Fallback: redirect to login
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/login`;
+    window.location.href = "/login";
   }
 };

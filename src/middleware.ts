@@ -5,18 +5,20 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // For protected routes (like /applications)
-  if (pathname.startsWith("/applications")) {
-    const sessionCookie = request.cookies.get("connect.sid");
+  if (pathname.startsWith("/applications") || pathname.startsWith("/admin")) {
+    const tokenCookie = request.cookies.get("token");
 
-    if (!sessionCookie) {
-      const loginUrl = new URL(
-        "/login",
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-      );
+    if (!tokenCookie) {
+      const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
 
     return NextResponse.next();
+  }
+  
+  // If user is already logged in and tries to access login/register, redirect to applications
+  if ((pathname.startsWith("/login") || pathname.startsWith("/register")) && request.cookies.get("token")) {
+     return NextResponse.redirect(new URL("/applications", request.url));
   }
 
   return NextResponse.next();
@@ -24,13 +26,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

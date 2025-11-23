@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { checkAuthStatus } from "@/utils/auth";
+import { useRouter } from "next/navigation";
 
 interface AuthCheckerProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface AuthCheckerProps {
 export const AuthChecker = ({ children }: AuthCheckerProps) => {
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -19,23 +21,22 @@ export const AuthChecker = ({ children }: AuthCheckerProps) => {
         setIsAuthenticated(authStatus.isAuthenticated);
         if (!authStatus.isAuthenticated) {
           console.log("Not authenticated, redirecting to login");
-          window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/login`;
+          router.push("/login");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/login`;
+        router.push("/login");
         setIsAuthenticated(false);
-        return;
       } finally {
         setIsChecking(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [router]);
 
   if (isChecking || !isAuthenticated) {
-    return null;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return <>{children}</>;

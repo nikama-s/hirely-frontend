@@ -18,14 +18,14 @@ import { checkAuthStatus, AuthStatus } from "@/utils/auth";
 
 export const UserNavbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [userInfo, setUserInfo] = useState<AuthStatus["userInfo"] | null>(null);
+  const [user, setUser] = useState<AuthStatus["user"] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const authStatus = await checkAuthStatus();
-        setUserInfo(authStatus.userInfo || null);
+        setUser(authStatus.user || null);
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       } finally {
@@ -44,13 +44,22 @@ export const UserNavbar = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     handleMenuClose();
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/logout`;
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      window.location.href = "/login";
+    }
   };
 
   const getInitials = (email: string) => {
-    return email.charAt(0).toUpperCase();
+    return email ? email.charAt(0).toUpperCase() : "?";
   };
 
   return (
@@ -66,27 +75,31 @@ export const UserNavbar = () => {
           </Typography>
         </Link>
 
-        {userInfo && !isLoading && (
+        {user && !isLoading && (
           <>
-            <Box className="flex items-center gap-3 ml-auto mr-4">
-              <Link href="/admin/users">
-                <Button
-                  variant="outlined"
-                  startIcon={<AdminPanelSettings />}
-                  className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
-                  size="small"
-                >
-                  Admin Panel
-                </Button>
-              </Link>
-            </Box>
+            {user.isAdmin && (
+              <Box className="flex items-center gap-3 ml-auto mr-4">
+                <Link href="/admin/users">
+                  <Button
+                    variant="outlined"
+                    startIcon={<AdminPanelSettings />}
+                    className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
+                    size="small"
+                  >
+                    Admin Panel
+                  </Button>
+                </Link>
+              </Box>
+            )}
+            
+            {!user.isAdmin && <Box className="flex-grow" />}
 
             <Box className="flex items-center gap-3">
               <Typography
                 variant="body2"
                 className="text-white/90 font-medium hidden sm:block"
               >
-                {userInfo.email}
+                {user.email}
               </Typography>
               <IconButton
                 size="large"
@@ -98,7 +111,7 @@ export const UserNavbar = () => {
                 className="hover:bg-white/10"
               >
                 <Avatar className="w-9 h-9 bg-gradient-to-r from-white/30 to-white/10 text-white font-bold border-2 border-white/20">
-                  {getInitials(userInfo.email)}
+                  {getInitials(user.email)}
                 </Avatar>
               </IconButton>
               <Menu

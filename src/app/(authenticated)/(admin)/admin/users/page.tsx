@@ -6,17 +6,16 @@ import { useEffect, useRef } from "react";
 import { People } from "@mui/icons-material";
 import UserManagementPageHeader from "./components/user-management-page-header";
 
-interface CognitoUser {
+interface User {
+  id: string;
   email: string;
-  username: string;
-  userStatus: string;
-  enabled: boolean;
-  userCreateDate?: string;
-  userLastModifiedDate?: string;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UsersResponse {
-  users: CognitoUser[];
+  users: User[];
   totalCount: number;
   nextToken?: string;
   hasMore: boolean;
@@ -26,7 +25,7 @@ async function fetchUsers(): Promise<UsersResponse> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/admin/users?limit=50`,
     {
-      credentials: "include",
+      credentials: "include"
     }
   );
   if (!response.ok) {
@@ -46,7 +45,7 @@ const createColumn = (
   flex,
   minWidth: 120,
   headerClassName: "font-semibold text-muted",
-  ...options,
+  ...options
 });
 
 const columns: GridColDef[] = [
@@ -58,46 +57,34 @@ const columns: GridColDef[] = [
         </div>
         <span className="font-medium text-gray-900">{params.value}</span>
       </div>
-    ),
+    )
   }),
-  createColumn("username", "Username", 1, {
+  createColumn("id", "ID", 1, {
     renderCell: (params) => (
-      <span className="text-sm bg-gray-100 px-2 py-1 rounded-md text-gray-700">
+      <span
+        className="text-xs text-gray-500 font-mono truncate block w-full"
+        title={params.value}
+      >
         {params.value}
       </span>
-    ),
+    )
   }),
-  createColumn("userStatus", "Status", 0.8, {
-    renderCell: (params) => (
-      <div className="flex items-center justify-center gap-2">
-        <span
-          className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-            params.value === "CONFIRMED"
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-          }`}
-        >
-          {params.value}
-        </span>
-      </div>
-    ),
-  }),
-  createColumn("enabled", "Enabled", 0.6, {
+  createColumn("isAdmin", "Role", 0.8, {
     renderCell: (params) => (
       <div className="flex items-center justify-center gap-2">
         <span
           className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
             params.value
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : "bg-red-100 text-red-800 border border-red-200"
+              ? "bg-purple-100 text-purple-800 border border-purple-200"
+              : "bg-gray-100 text-gray-800 border border-gray-200"
           }`}
         >
-          {params.value ? "Active" : "Disabled"}
+          {params.value ? "Admin" : "User"}
         </span>
       </div>
-    ),
+    )
   }),
-  createColumn("userCreateDate", "Created", 0.8, {
+  createColumn("createdAt", "Created At", 1, {
     renderCell: (params) => (
       <div className="flex items-center justify-center gap-2">
         <span className="font-medium text-gray-900">
@@ -107,20 +94,29 @@ const columns: GridColDef[] = [
           <span className="text-xs text-gray-500">
             {new Date(params.value).toLocaleTimeString([], {
               hour: "2-digit",
-              minute: "2-digit",
+              minute: "2-digit"
             })}
           </span>
         )}
       </div>
-    ),
+    )
   }),
+  createColumn("updatedAt", "Last Updated", 1, {
+    renderCell: (params) => (
+      <div className="flex items-center justify-center gap-2">
+        <span className="text-sm text-gray-700">
+          {params.value ? new Date(params.value).toLocaleDateString() : "-"}
+        </span>
+      </div>
+    )
+  })
 ];
 
 export default function AdminUsersPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     queryFn: fetchUsers,
-    retry: false,
+    retry: false
   });
 
   const apiRef = useGridApiRef();
@@ -137,7 +133,7 @@ export default function AdminUsersPage() {
         includeHeaders: true,
         includeOutliers: true,
         outliersFactor: 1,
-        expand: true,
+        expand: true
       });
       initialLoading.current = true;
     }
@@ -172,40 +168,40 @@ export default function AdminUsersPage() {
               rows={data?.users || []}
               columns={columns}
               loading={isLoading}
-              getRowId={(row) => row.username}
+              getRowId={(row) => row.id}
               initialState={{
                 pagination: {
-                  paginationModel: { page: 0, pageSize: 15 },
-                },
+                  paginationModel: { page: 0, pageSize: 15 }
+                }
               }}
               pageSizeOptions={[10, 15, 25, 50]}
               disableRowSelectionOnClick
               className="border-none"
               sx={{
                 "& .MuiDataGrid-columnHeaders": {
-                  borderBottom: "2px solid var(--color-border)",
+                  borderBottom: "2px solid var(--color-border)"
                 },
                 "& .MuiDataGrid-row": {
                   "&:hover": {
                     transform: "translateY(-1px)",
-                    backgroundColor: "var(--color-border)",
+                    backgroundColor: "var(--color-border)"
                   },
                   "&:nth-of-type(even)": {
                     "&:hover": {
-                      backgroundColor: "var(--color-border)",
+                      backgroundColor: "var(--color-border)"
                     },
-                    backgroundColor: "var(--color-muted-bg)",
-                  },
+                    backgroundColor: "var(--color-muted-bg)"
+                  }
                 },
                 "& .MuiDataGrid-cell": {
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "center"
                 },
                 "& .MuiDataGrid-footerContainer": {
                   "& .MuiTablePagination-root": {
-                    color: "var(--color-muted)",
-                  },
-                },
+                    color: "var(--color-muted)"
+                  }
+                }
               }}
             />
           </div>
