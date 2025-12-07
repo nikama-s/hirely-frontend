@@ -3,10 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { useEffect, useRef, useState } from "react";
-import { People, Analytics } from "@mui/icons-material";
+import { People, Analytics, Person } from "@mui/icons-material";
 import { Tabs, Tab, Box } from "@mui/material";
 import UserManagementPageHeader from "./components/user-management-page-header";
 import { AdminAnalytics } from "../components/AdminAnalytics";
+import { UserAnalytics } from "../components/UserAnalytics";
 
 interface User {
   id: string;
@@ -163,6 +164,11 @@ export default function AdminUsersPage() {
           >
             <Tab icon={<People />} iconPosition="start" label="Users" />
             <Tab icon={<Analytics />} iconPosition="start" label="Analytics" />
+            <Tab
+              icon={<Person />}
+              iconPosition="start"
+              label="User Analytics"
+            />
           </Tabs>
         </Box>
 
@@ -226,6 +232,12 @@ export default function AdminUsersPage() {
         {tabValue === 1 && (
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
             <AdminAnalytics />
+          </div>
+        )}
+
+        {tabValue === 2 && (
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+            <UserAnalytics />
           </div>
         )}
       </div>
