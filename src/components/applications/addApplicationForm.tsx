@@ -25,7 +25,7 @@ import {
 import {
   useCreateApplicationMutation,
   useUpdateApplicationMutation
-} from "../api";
+} from "../../app/(authenticated)/applications/api";
 import toast from "react-hot-toast";
 
 interface AddApplicationFormProps {

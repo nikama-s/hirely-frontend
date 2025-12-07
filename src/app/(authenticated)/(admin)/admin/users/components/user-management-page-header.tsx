@@ -3,7 +3,7 @@ import {
   AdminPanelSettings,
   CheckCircle,
   People,
-  TrendingUp,
+  TrendingUp
 } from "@mui/icons-material";
 import { UsersResponse } from "../page";
 
@@ -12,7 +12,7 @@ interface UserManagementPageHeaderProps {
 }
 
 export default function UserManagementPageHeader({
-  data,
+  data
 }: UserManagementPageHeaderProps) {
   const { totalCount, users } = data || { totalCount: 0, users: [] };
   return (
@@ -25,7 +25,7 @@ export default function UserManagementPageHeader({
           <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
             User Management
           </h1>
-          <p className="text-gray-600 mt-1">Manage and monitor user accounts</p>
+          <p className="text-gray-600 mt-1">Monitor user accounts</p>
         </div>
       </div>
 
@@ -52,9 +52,7 @@ export default function UserManagementPageHeader({
 
         <Card
           title="Regular Users"
-          count={
-            users?.filter((user) => !user.isAdmin).length || 0
-          }
+          count={users?.filter((user) => !user.isAdmin).length || 0}
           icon={
             <div className="p-3 bg-purple-100 rounded-lg">
               <TrendingUp className="w-6 h-6 text-purple-600" />

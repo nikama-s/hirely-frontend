@@ -9,7 +9,7 @@ import {
   ApplicationTable,
   StatCard,
   AddApplicationForm
-} from "./components";
+} from "@/components/applications";
 import {
   WorkOutline as AppliedIcon,
   PersonSearch as InterviewIcon,
