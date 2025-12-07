@@ -5,7 +5,7 @@ export const fetchApplications = async (): Promise<Application[]> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/job-applications`,
     {
-      credentials: "include", // Important for session cookies
+      credentials: "include" // Important for session cookies
     }
   );
 
@@ -25,16 +25,40 @@ export const createApplication = async (
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      credentials: "include", // Important for session cookies
-      body: JSON.stringify(data),
+      credentials: "include",
+      body: JSON.stringify(data)
     }
   );
 
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to create application");
+  }
+
+  return response.json();
+};
+
+export const updateApplication = async (
+  id: number,
+  data: ApplicationFormData
+): Promise<Application> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/job-applications/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(data)
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to update application");
   }
 
   return response.json();

@@ -1,6 +1,8 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { ApplicationStatus } from "@/types";
+import { ApplicationStatus, Application } from "@/types";
 import { getStatusStyle, getStatusLabel } from "@/utils";
+import { IconButton } from "@mui/material";
+import { Edit as EditIcon } from "@mui/icons-material";
 
 const createColumn = (
   field: string,
@@ -16,7 +18,9 @@ const createColumn = (
   ...options,
 });
 
-export const getApplicationColumns = (): GridColDef[] => [
+export const getApplicationColumns = (
+  onEdit?: (application: Application) => void
+): GridColDef[] => [
   createColumn("company", "Company", 1),
   createColumn("jobTitle", "Job Title", 1),
   createColumn("status", "Status", 0.8, {
@@ -96,5 +100,22 @@ export const getApplicationColumns = (): GridColDef[] => [
         {params.value || "No notes"}
       </span>
     ),
+  }),
+  createColumn("actions", "Actions", 0.5, {
+    renderCell: (params) => {
+      const application = params.row as Application;
+      return (
+        <IconButton
+          size="small"
+          onClick={() => onEdit?.(application)}
+          className="text-primary hover:text-primary/80"
+          aria-label="edit application"
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
+      );
+    },
+    sortable: false,
+    filterable: false,
   }),
 ];

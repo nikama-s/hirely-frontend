@@ -15,29 +15,34 @@ import {
   Select,
   MenuItem,
   Box,
-  Alert,
+  Alert
 } from "@mui/material";
 import { Application, ApplicationStatus } from "@/types";
 import {
   applicationFormSchema,
-  ApplicationFormData,
+  ApplicationFormData
 } from "@/schemas/applicationForm";
-import { createApplication } from "../api";
+import { createApplication, updateApplication } from "../api";
 
 interface AddApplicationFormProps {
   onApplicationAdded: (application: Application) => void;
+  onApplicationUpdated?: (application: Application) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  editingApplication?: Application | null;
 }
 
 export function AddApplicationForm({
   onApplicationAdded,
+  onApplicationUpdated,
   open,
   setOpen,
+  editingApplication
 }: AddApplicationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const isEditMode = !!editingApplication;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -56,7 +61,7 @@ export function AddApplicationForm({
     formState: { errors },
     reset,
     setValue,
-    watch,
+    watch
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationFormSchema),
     defaultValues: {
@@ -68,9 +73,38 @@ export function AddApplicationForm({
       notes: "",
       salary_from: undefined,
       salary_to: undefined,
-      location: "",
-    },
+      location: ""
+    }
   });
+
+  useEffect(() => {
+    if (editingApplication) {
+      const dateApplied = editingApplication.dateApplied
+        ? new Date(editingApplication.dateApplied).toISOString().split("T")[0]
+        : "";
+      setValue("company", editingApplication.company);
+      setValue("jobTitle", editingApplication.jobTitle);
+      setValue("status", editingApplication.status);
+      setValue("dateApplied", dateApplied);
+      setValue("jobPostUrl", editingApplication.jobPostUrl || "");
+      setValue("notes", editingApplication.notes || "");
+      setValue("salary_from", editingApplication.salary_from || undefined);
+      setValue("salary_to", editingApplication.salary_to || undefined);
+      setValue("location", editingApplication.location || "");
+    } else {
+      reset({
+        company: "",
+        jobTitle: "",
+        status: ApplicationStatus.APPLIED,
+        dateApplied: "",
+        jobPostUrl: "",
+        notes: "",
+        salary_from: undefined,
+        salary_to: undefined,
+        location: ""
+      });
+    }
+  }, [editingApplication, setValue, reset]);
 
   const statusValue = watch("status");
 
@@ -83,16 +117,31 @@ export function AddApplicationForm({
         ...data,
         dateApplied: data.dateApplied
           ? new Date(data.dateApplied).toISOString()
-          : undefined,
+          : undefined
       };
 
-      const application = await createApplication(formattedData);
-      setOpen(false);
-      onApplicationAdded(application);
+      if (isEditMode && editingApplication) {
+        const application = await updateApplication(
+          editingApplication.id,
+          formattedData
+        );
+        setOpen(false);
+        if (onApplicationUpdated) {
+          onApplicationUpdated(application);
+        }
+      } else {
+        const application = await createApplication(formattedData);
+        setOpen(false);
+        onApplicationAdded(application);
+      }
       reset();
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to create application"
+        err instanceof Error
+          ? err.message
+          : isEditMode
+          ? "Failed to update application"
+          : "Failed to create application"
       );
     } finally {
       setIsSubmitting(false);
@@ -115,7 +164,7 @@ export function AddApplicationForm({
         fullScreen={isMobile}
       >
         <DialogTitle className="pt-4 px-4 pb-0 sm:pt-8 sm:px-8">
-          Add New Job Application
+          {isEditMode ? "Edit Job Application" : "Add New Job Application"}
         </DialogTitle>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent className="px-4 sm:px-8">
@@ -170,8 +219,8 @@ export function AddApplicationForm({
                   fullWidth
                   slotProps={{
                     inputLabel: {
-                      shrink: true,
-                    },
+                      shrink: true
+                    }
                   }}
                   error={!!errors.dateApplied}
                   helperText={errors.dateApplied?.message}
@@ -201,13 +250,13 @@ export function AddApplicationForm({
                       if (value === "" || value == null) return undefined;
                       const num = Number(value);
                       return isNaN(num) ? undefined : num;
-                    },
+                    }
                   })}
                   label="Salary From"
                   slotProps={{
                     htmlInput: {
-                      type: "number",
-                    },
+                      type: "number"
+                    }
                   }}
                   fullWidth
                   error={!!errors.salary_from}
@@ -220,13 +269,13 @@ export function AddApplicationForm({
                       if (value === "" || value == null) return undefined;
                       const num = Number(value);
                       return isNaN(num) ? undefined : num;
-                    },
+                    }
                   })}
                   label="Salary To"
                   slotProps={{
                     htmlInput: {
-                      type: "number",
-                    },
+                      type: "number"
+                    }
                   }}
                   fullWidth
                   error={!!errors.salary_to}
@@ -257,7 +306,13 @@ export function AddApplicationForm({
               Cancel
             </Button>
             <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? "Adding..." : "Add Application"}
+              {isSubmitting
+                ? isEditMode
+                  ? "Updating..."
+                  : "Adding..."
+                : isEditMode
+                ? "Update Application"
+                : "Add Application"}
             </Button>
           </DialogActions>
         </form>
