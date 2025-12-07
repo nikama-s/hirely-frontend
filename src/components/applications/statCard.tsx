@@ -13,7 +13,7 @@ const colorClasses = {
   primary: "text-primary",
   warning: "text-warning",
   success: "text-success",
-  error: "text-error",
+  error: "text-error"
 };
 
 export const StatCard = ({
@@ -21,12 +21,12 @@ export const StatCard = ({
   label,
   color,
   icon: IconComponent,
-  isLoading = false,
+  isLoading = false
 }: StatCardProps) => {
   return (
     <Paper
       elevation={2}
-      className="rounded-2xl shadow-lg border border-border p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative"
+      className="rounded-2xl shadow-lg border border-border p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
