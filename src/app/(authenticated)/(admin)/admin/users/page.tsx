@@ -2,9 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import { useEffect, useRef } from "react";
-import { People } from "@mui/icons-material";
+import { useEffect, useRef, useState } from "react";
+import { People, Analytics } from "@mui/icons-material";
+import { Tabs, Tab, Box } from "@mui/material";
 import UserManagementPageHeader from "./components/user-management-page-header";
+import { AdminAnalytics } from "../components/AdminAnalytics";
 
 interface User {
   id: string;
@@ -113,6 +115,7 @@ const columns: GridColDef[] = [
 ];
 
 export default function AdminUsersPage() {
+  const [tabValue, setTabValue] = useState(0);
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     queryFn: fetchUsers,
@@ -151,61 +154,80 @@ export default function AdminUsersPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4 py-8">
         <UserManagementPageHeader data={data} />
-        {/* Data Grid */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <People className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">
-                User Directory
-              </h2>
-            </div>
-          </div>
 
-          <div className="h-[65vh] min-h-[500px] w-full">
-            <DataGrid
-              apiRef={apiRef}
-              rows={data?.users || []}
-              columns={columns}
-              loading={isLoading}
-              getRowId={(row) => row.id}
-              initialState={{
-                pagination: {
-                  paginationModel: { page: 0, pageSize: 15 }
-                }
-              }}
-              pageSizeOptions={[10, 15, 25, 50]}
-              disableRowSelectionOnClick
-              className="border-none"
-              sx={{
-                "& .MuiDataGrid-columnHeaders": {
-                  borderBottom: "2px solid var(--color-border)"
-                },
-                "& .MuiDataGrid-row": {
-                  "&:hover": {
-                    transform: "translateY(-1px)",
-                    backgroundColor: "var(--color-border)"
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+          <Tabs
+            value={tabValue}
+            onChange={(_, newValue) => setTabValue(newValue)}
+            aria-label="admin page tabs"
+          >
+            <Tab icon={<People />} iconPosition="start" label="Users" />
+            <Tab icon={<Analytics />} iconPosition="start" label="Analytics" />
+          </Tabs>
+        </Box>
+
+        {tabValue === 0 && (
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <People className="w-5 h-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  User Directory
+                </h2>
+              </div>
+            </div>
+
+            <div className="h-[65vh] min-h-[500px] w-full">
+              <DataGrid
+                apiRef={apiRef}
+                rows={data?.users || []}
+                columns={columns}
+                loading={isLoading}
+                getRowId={(row) => row.id}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 15 }
+                  }
+                }}
+                pageSizeOptions={[10, 15, 25, 50]}
+                disableRowSelectionOnClick
+                className="border-none"
+                sx={{
+                  "& .MuiDataGrid-columnHeaders": {
+                    borderBottom: "2px solid var(--color-border)"
                   },
-                  "&:nth-of-type(even)": {
+                  "& .MuiDataGrid-row": {
                     "&:hover": {
+                      transform: "translateY(-1px)",
                       backgroundColor: "var(--color-border)"
                     },
-                    backgroundColor: "var(--color-muted-bg)"
+                    "&:nth-of-type(even)": {
+                      "&:hover": {
+                        backgroundColor: "var(--color-border)"
+                      },
+                      backgroundColor: "var(--color-muted-bg)"
+                    }
+                  },
+                  "& .MuiDataGrid-cell": {
+                    display: "flex",
+                    alignItems: "center"
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    "& .MuiTablePagination-root": {
+                      color: "var(--color-muted)"
+                    }
                   }
-                },
-                "& .MuiDataGrid-cell": {
-                  display: "flex",
-                  alignItems: "center"
-                },
-                "& .MuiDataGrid-footerContainer": {
-                  "& .MuiTablePagination-root": {
-                    color: "var(--color-muted)"
-                  }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
+
+        {tabValue === 1 && (
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+            <AdminAnalytics />
+          </div>
+        )}
       </div>
     </div>
   );
