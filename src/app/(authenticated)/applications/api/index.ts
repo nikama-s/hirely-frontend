@@ -105,3 +105,30 @@ export const useUpdateApplicationMutation = () => {
     }
   });
 };
+
+const deleteApplicationRequest = async (id: number): Promise<void> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/job-applications/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include"
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to delete application");
+  }
+};
+
+export const useDeleteApplicationMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteApplicationRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    }
+  });
+};

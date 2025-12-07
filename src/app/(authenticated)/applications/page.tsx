@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchApplications } from "./api";
+import { fetchApplications, useDeleteApplicationMutation } from "./api";
 import { Application, ApplicationStatus } from "@/types";
 import { getApplicationColumns } from "./utils/columns";
 import {
@@ -19,6 +19,7 @@ import {
 import { useState, useMemo } from "react";
 import { Button, TextField, InputAdornment } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
+import toast from "react-hot-toast";
 
 export default function ApplicationsPage() {
   const { data: applications, isLoading } = useQuery({
@@ -31,13 +32,33 @@ export default function ApplicationsPage() {
   const [editingApplication, setEditingApplication] =
     useState<Application | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const deleteMutation = useDeleteApplicationMutation();
 
   const handleEdit = (application: Application) => {
     setEditingApplication(application);
     setAddApplicationOpen(true);
   };
 
-  const columns = getApplicationColumns(handleEdit);
+  const handleDelete = async (application: Application) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the application for ${application.company} - ${application.jobTitle}?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(application.id);
+      toast.success("Application deleted successfully", { duration: 3000 });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete application"
+      );
+    }
+  };
+
+  const columns = getApplicationColumns(handleEdit, handleDelete);
 
   const handleCloseForm = () => {
     setAddApplicationOpen(false);
