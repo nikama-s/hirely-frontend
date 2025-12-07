@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchApplications } from "./api";
 import { Application, ApplicationStatus } from "@/types";
 import { getApplicationColumns } from "./utils/columns";
@@ -16,9 +16,9 @@ import {
   EmojiEvents as OfferedIcon,
   ThumbDownAlt as RejectedIcon
 } from "@mui/icons-material";
-import { useState } from "react";
-import { Button } from "@mui/material";
-import toast from "react-hot-toast";
+import { useState, useMemo } from "react";
+import { Button, TextField, InputAdornment } from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
 
 export default function ApplicationsPage() {
   const { data: applications, isLoading } = useQuery({
@@ -26,11 +26,11 @@ export default function ApplicationsPage() {
     queryFn: () => fetchApplications(),
     staleTime: 1000 * 60 * 5
   });
-  const queryClient = useQueryClient();
 
   const [addApplicationOpen, setAddApplicationOpen] = useState(false);
   const [editingApplication, setEditingApplication] =
     useState<Application | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleEdit = (application: Application) => {
     setEditingApplication(application);
@@ -39,42 +39,70 @@ export default function ApplicationsPage() {
 
   const columns = getApplicationColumns(handleEdit);
 
-  const handleApplicationAdded = (application: Application) => {
-    toast.success("Application added successfully", {
-      duration: 3000
-    });
-
-    queryClient.setQueryData(["applications"], (old: Application[]) => [
-      ...old,
-      application
-    ]);
-  };
-
-  const handleApplicationUpdated = (application: Application) => {
-    toast.success("Application updated successfully", {
-      duration: 3000
-    });
-
-    queryClient.setQueryData(["applications"], (old: Application[]) => {
-      if (!old) return [application];
-      return old.map((app) => (app.id === application.id ? application : app));
-    });
-
-    setEditingApplication(null);
-  };
-
   const handleCloseForm = () => {
     setAddApplicationOpen(false);
     setEditingApplication(null);
   };
+
+  const filteredApplications = useMemo(() => {
+    if (!applications) return [];
+    if (!searchQuery.trim()) return applications;
+
+    const query = searchQuery.toLowerCase().trim();
+    return applications.filter((app) => {
+      const company = app.company?.toLowerCase() || "";
+      const jobTitle = app.jobTitle?.toLowerCase() || "";
+      const location = app.location?.toLowerCase() || "";
+      const notes = app.notes?.toLowerCase() || "";
+      const status = app.status?.toLowerCase() || "";
+
+      return (
+        company.includes(query) ||
+        jobTitle.includes(query) ||
+        location.includes(query) ||
+        notes.includes(query) ||
+        status.includes(query)
+      );
+    });
+  }, [applications, searchQuery]);
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8 lg:px-16 relative">
       <div className="mx-auto">
         <TableHeader applications={applications || []} isLoading={isLoading} />
 
+        <div className="mb-4">
+          <TextField
+            fullWidth
+            placeholder="Search by company, job title, location, notes, or status..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon className="text-muted" />
+                  </InputAdornment>
+                )
+              }
+            }}
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                paddingTop: "8px",
+                paddingBottom: "8px"
+              }
+            }}
+          />
+          {searchQuery && (
+            <p className="text-sm text-muted mt-2">
+              Showing {filteredApplications.length} of{" "}
+              {applications?.length || 0} applications
+            </p>
+          )}
+        </div>
+
         <ApplicationTable
-          applications={applications || []}
+          applications={filteredApplications}
           columns={columns}
           isLoading={isLoading}
         />
@@ -82,7 +110,7 @@ export default function ApplicationsPage() {
         <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
             value={
-              applications?.filter(
+              filteredApplications?.filter(
                 (app) => app.status !== ApplicationStatus.NOT_APPLIED
               ).length || 0
             }
@@ -93,7 +121,7 @@ export default function ApplicationsPage() {
           />
           <StatCard
             value={
-              applications?.filter(
+              filteredApplications?.filter(
                 (app) => app.status === ApplicationStatus.INTERVIEW
               ).length || 0
             }
@@ -104,7 +132,7 @@ export default function ApplicationsPage() {
           />
           <StatCard
             value={
-              applications?.filter(
+              filteredApplications?.filter(
                 (app) =>
                   app.status === ApplicationStatus.OFFERED ||
                   app.status === ApplicationStatus.ACCEPTED
@@ -117,7 +145,7 @@ export default function ApplicationsPage() {
           />
           <StatCard
             value={
-              applications?.filter(
+              filteredApplications?.filter(
                 (app) =>
                   app.status === ApplicationStatus.REJECTED ||
                   app.status === ApplicationStatus.GHOSTED
@@ -130,8 +158,6 @@ export default function ApplicationsPage() {
           />
         </div>
         <AddApplicationForm
-          onApplicationAdded={handleApplicationAdded}
-          onApplicationUpdated={handleApplicationUpdated}
           open={addApplicationOpen}
           setOpen={handleCloseForm}
           editingApplication={editingApplication}

@@ -11,15 +11,23 @@ import {
   MenuItem,
   Box,
   Button,
+  Divider
 } from "@mui/material";
-import { Logout, AdminPanelSettings } from "@mui/icons-material";
+import {
+  Logout,
+  AdminPanelSettings,
+  Analytics,
+  WorkOutline
+} from "@mui/icons-material";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { checkAuthStatus, AuthStatus } from "@/utils/auth";
 
 export const UserNavbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [user, setUser] = useState<AuthStatus["user"] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -49,13 +57,17 @@ export const UserNavbar = () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
         method: "POST",
-        credentials: "include",
+        credentials: "include"
       });
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
       window.location.href = "/login";
     }
+  };
+
+  const handleMenuItemClick = () => {
+    handleMenuClose();
   };
 
   const getInitials = (email: string) => {
@@ -77,8 +89,28 @@ export const UserNavbar = () => {
 
         {user && !isLoading && (
           <>
-            {user.isAdmin && (
-              <Box className="flex items-center gap-3 ml-auto mr-4">
+            <Box className="hidden md:flex items-center gap-3 ml-auto mr-4">
+              <Link href="/applications">
+                <Button
+                  variant="outlined"
+                  startIcon={<WorkOutline />}
+                  className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
+                  size="small"
+                >
+                  Applications
+                </Button>
+              </Link>
+              <Link href="/analytics">
+                <Button
+                  variant="outlined"
+                  startIcon={<Analytics />}
+                  className="text-white border-white/30 hover:bg-white/10 hover:border-white/50"
+                  size="small"
+                >
+                  Analytics
+                </Button>
+              </Link>
+              {user.isAdmin && (
                 <Link href="/admin/users">
                   <Button
                     variant="outlined"
@@ -89,10 +121,11 @@ export const UserNavbar = () => {
                     Admin Panel
                   </Button>
                 </Link>
-              </Box>
-            )}
-            
-            {!user.isAdmin && <Box className="flex-grow" />}
+              )}
+            </Box>
+
+            {/* Spacer for mobile to push user icon to the right */}
+            <Box className="flex-grow md:hidden" />
 
             <Box className="flex items-center gap-3">
               <Typography
@@ -119,17 +152,59 @@ export const UserNavbar = () => {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                   vertical: "bottom",
-                  horizontal: "right",
+                  horizontal: "right"
                 }}
                 keepMounted
                 transformOrigin={{
                   vertical: "top",
-                  horizontal: "right",
+                  horizontal: "right"
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
                 disableScrollLock={true}
               >
+                <Link href="/applications" className="md:hidden">
+                  <MenuItem
+                    onClick={handleMenuItemClick}
+                    className={`gap-1.5 ${
+                      pathname === "/applications"
+                        ? "bg-blue-50 text-blue-600"
+                        : ""
+                    }`}
+                  >
+                    <WorkOutline fontSize="small" />
+                    Applications
+                  </MenuItem>
+                </Link>
+                <Link href="/analytics" className="md:hidden">
+                  <MenuItem
+                    onClick={handleMenuItemClick}
+                    className={`gap-1.5 ${
+                      pathname === "/analytics"
+                        ? "bg-blue-50 text-blue-600"
+                        : ""
+                    }`}
+                  >
+                    <Analytics fontSize="small" />
+                    Analytics
+                  </MenuItem>
+                </Link>
+                {user.isAdmin && (
+                  <Link href="/admin/users" className="md:hidden">
+                    <MenuItem
+                      onClick={handleMenuItemClick}
+                      className={`gap-1.5 ${
+                        pathname?.startsWith("/admin")
+                          ? "bg-blue-50 text-blue-600"
+                          : ""
+                      }`}
+                    >
+                      <AdminPanelSettings fontSize="small" />
+                      Admin Panel
+                    </MenuItem>
+                  </Link>
+                )}
+                <Divider className="md:hidden" />
                 <MenuItem
                   onClick={handleLogout}
                   className="gap-1.5 text-red-500"

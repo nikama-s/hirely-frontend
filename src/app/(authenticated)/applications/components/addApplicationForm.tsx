@@ -22,27 +22,27 @@ import {
   applicationFormSchema,
   ApplicationFormData
 } from "@/schemas/applicationForm";
-import { createApplication, updateApplication } from "../api";
+import {
+  useCreateApplicationMutation,
+  useUpdateApplicationMutation
+} from "../api";
+import toast from "react-hot-toast";
 
 interface AddApplicationFormProps {
-  onApplicationAdded: (application: Application) => void;
-  onApplicationUpdated?: (application: Application) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   editingApplication?: Application | null;
 }
 
 export function AddApplicationForm({
-  onApplicationAdded,
-  onApplicationUpdated,
   open,
   setOpen,
   editingApplication
 }: AddApplicationFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const isEditMode = !!editingApplication;
+  const createMutation = useCreateApplicationMutation();
+  const updateMutation = useUpdateApplicationMutation();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -58,7 +58,7 @@ export function AddApplicationForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
     setValue,
     watch
@@ -82,15 +82,20 @@ export function AddApplicationForm({
       const dateApplied = editingApplication.dateApplied
         ? new Date(editingApplication.dateApplied).toISOString().split("T")[0]
         : "";
-      setValue("company", editingApplication.company);
-      setValue("jobTitle", editingApplication.jobTitle);
-      setValue("status", editingApplication.status);
-      setValue("dateApplied", dateApplied);
-      setValue("jobPostUrl", editingApplication.jobPostUrl || "");
-      setValue("notes", editingApplication.notes || "");
-      setValue("salary_from", editingApplication.salary_from || undefined);
-      setValue("salary_to", editingApplication.salary_to || undefined);
-      setValue("location", editingApplication.location || "");
+      reset(
+        {
+          company: editingApplication.company,
+          jobTitle: editingApplication.jobTitle,
+          status: editingApplication.status,
+          dateApplied: dateApplied,
+          jobPostUrl: editingApplication.jobPostUrl || "",
+          notes: editingApplication.notes || "",
+          salary_from: editingApplication.salary_from || undefined,
+          salary_to: editingApplication.salary_to || undefined,
+          location: editingApplication.location || ""
+        },
+        { keepDefaultValues: false }
+      );
     } else {
       reset({
         company: "",
@@ -104,55 +109,59 @@ export function AddApplicationForm({
         location: ""
       });
     }
-  }, [editingApplication, setValue, reset]);
+  }, [editingApplication, reset]);
 
   const statusValue = watch("status");
 
   const onSubmit = async (data: ApplicationFormData) => {
-    setIsSubmitting(true);
-    setError(null);
+    const formattedData = {
+      ...data,
+      dateApplied: data.dateApplied
+        ? new Date(data.dateApplied).toISOString()
+        : undefined
+    };
 
     try {
-      const formattedData = {
-        ...data,
-        dateApplied: data.dateApplied
-          ? new Date(data.dateApplied).toISOString()
-          : undefined
-      };
-
       if (isEditMode && editingApplication) {
-        const application = await updateApplication(
-          editingApplication.id,
-          formattedData
-        );
-        setOpen(false);
-        if (onApplicationUpdated) {
-          onApplicationUpdated(application);
-        }
+        await updateMutation.mutateAsync({
+          id: editingApplication.id,
+          data: formattedData
+        });
+        toast.success("Application updated successfully", { duration: 3000 });
       } else {
-        const application = await createApplication(formattedData);
-        setOpen(false);
-        onApplicationAdded(application);
+        await createMutation.mutateAsync(formattedData);
+        toast.success("Application added successfully", { duration: 3000 });
       }
+      setOpen(false);
       reset();
     } catch (err: unknown) {
-      setError(
+      // Error is handled by mutation
+      toast.error(
         err instanceof Error
           ? err.message
           : isEditMode
           ? "Failed to update application"
           : "Failed to create application"
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
     setOpen(false);
-    setError(null);
     reset();
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const error =
+    createMutation.error || updateMutation.error
+      ? createMutation.error instanceof Error
+        ? createMutation.error.message
+        : updateMutation.error instanceof Error
+        ? updateMutation.error.message
+        : isEditMode
+        ? "Failed to update application"
+        : "Failed to create application"
+      : null;
 
   return (
     <>
@@ -305,7 +314,11 @@ export function AddApplicationForm({
             >
               Cancel
             </Button>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting || (isEditMode && !isDirty)}
+            >
               {isSubmitting
                 ? isEditMode
                   ? "Updating..."
